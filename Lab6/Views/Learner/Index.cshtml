@@ -1,0 +1,75 @@
+@model IEnumerable<Learner>
+@{
+    ViewData["Title"] = "Learner List";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Learner List</h2>
+        <p class="text-muted mb-0">Phân trang, lọc chuyên ngành và tìm kiếm Learner</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">Create New Student</a>
+</div>
+
+<div class="major-filter mb-2">
+    <a asp-action="Index" class="major-link">Tất cả</a>
+    @foreach (var major in ViewData["Majors"] as IEnumerable<Major> ?? Enumerable.Empty<Major>())
+    {
+        <a asp-action="Index" asp-route-mid="@major.MajorID" class="major-link">@major.MajorName</a>
+    }
+</div>
+
+<div class="card p-3">
+    <form id="searchForm" class="d-flex gap-2 mb-3" onsubmit="return false;">
+        <input id="keyword" name="keyword" class="form-control" type="text"
+               placeholder="Search learner..." style="max-width:300px" />
+        <button id="buttonSearch" class="btn btn-primary" type="button">
+            <span class="icon-search">⌕</span> Search
+        </button>
+    </form>
+
+    <div id="divcontent">
+        @await Html.PartialAsync("LearnerTable", Model)
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        // Nhấn nút Search để tìm kiếm.
+        $("#buttonSearch").click(function () {
+            loadLearners(1);
+        });
+
+        // Nhấn Enter trong ô tìm kiếm.
+        $("#keyword").keypress(function (e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                loadLearners(1);
+            }
+        });
+
+        // Bắt sự kiện phân trang; nội dung bảng được thay bằng AJAX.
+        $(document).on("click", ".page-link-ajax", function (e) {
+            e.preventDefault();
+            var page = $(this).attr("data-page");
+            loadLearners(page);
+        });
+
+        function loadLearners(page) {
+            var mid = '@(ViewBag.mid ?? "")';
+            var keyword = $("#keyword").val();
+            $.ajax({
+                url: '@Url.Action("LearnerFilter", "Learner")',
+                type: "GET",
+                data: { mid: mid, keyword: keyword, pageIndex: page },
+                success: function (response) {
+                    $("#divcontent").html(response);
+                },
+                error: function () {
+                    $("#divcontent").html('<div class="alert alert-danger">Không tải được dữ liệu.</div>');
+                }
+            });
+        }
+    });
+</script>
+}

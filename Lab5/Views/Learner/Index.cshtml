@@ -1,0 +1,60 @@
+@model IEnumerable<Learner>
+@{
+    ViewData["Title"] = "Learner List";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Learner List</h2>
+        <p class="text-muted mb-0">Danh sách học viên và chức năng lọc theo chuyên ngành</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">Create New Student</a>
+</div>
+
+<section class="card p-3 mb-4">
+    <h5>1. Lọc đồng bộ bằng ViewComponent</h5>
+    @await Component.InvokeAsync("Major")
+    <small class="text-muted">Nhấn vào chuyên ngành để tải lại trang và lọc danh sách.</small>
+</section>
+
+<section class="card p-3">
+    <h5>2. Lọc không đồng bộ bằng AJAX</h5>
+    <div class="mb-3" style="max-width:320px">
+        <label for="majorAjax" class="form-label">Chọn chuyên ngành</label>
+        <select id="majorAjax" class="form-select">
+            <option value="">-- Tất cả chuyên ngành --</option>
+            @foreach (var major in ViewData["Majors"] as IEnumerable<Major> ?? Enumerable.Empty<Major>())
+            {
+                <option value="@major.MajorID">@major.MajorName</option>
+            }
+        </select>
+    </div>
+    <div id="divcontent">
+        @await Html.PartialAsync("LearnerTable", Model)
+    </div>
+    <div id="loading" class="text-primary mt-2" style="display:none">Đang tải dữ liệu...</div>
+</section>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        $("#majorAjax").on("change", function () {
+            var id = $(this).val();
+            $("#loading").show();
+            $.ajax({
+                url: '@Url.Action("LearnerByMajorID", "Learner")',
+                type: 'GET',
+                data: { mid: id },
+                success: function (response) {
+                    $("#divcontent").html(response);
+                },
+                error: function () {
+                    $("#divcontent").html('<div class="alert alert-danger">Không tải được dữ liệu.</div>');
+                },
+                complete: function () {
+                    $("#loading").hide();
+                }
+            });
+        });
+    });
+</script>
+}

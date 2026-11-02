@@ -1,0 +1,8 @@
+@model IEnumerable<Major>
+<div class="major-filter">
+    <a asp-controller="Learner" asp-action="Index" class="major-link">Tất cả</a>
+    @foreach (var major in Model)
+    {
+        <a asp-controller="Learner" asp-action="Index" asp-route-mid="@major.MajorID" class="major-link">@major.MajorName</a>
+    }
+</div>

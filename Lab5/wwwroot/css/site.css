@@ -1,0 +1,7 @@
+body { background: #f5f7fb; }
+main.container { min-height: calc(100vh - 130px); }
+.card { border: 1px solid #e2e6ea; border-radius: 10px; }
+.major-filter { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+.major-link { text-decoration: none; padding: 7px 14px; border: 1px solid #0d6efd; border-radius: 20px; color: #0d6efd; }
+.major-link:hover { background: #0d6efd; color: white; }
+table { margin-bottom: 0 !important; }
